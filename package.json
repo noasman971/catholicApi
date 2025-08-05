@@ -4,12 +4,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "stop": "taskkill /F /IM node.exe",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0"
   }
 }
