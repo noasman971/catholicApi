@@ -1,5 +1,4 @@
-export function error403(req, res)
-{
+export function error403(req, res) {
     if (req.headers['api-key'] !== process.env.API_KEY) {
         return res.status(403).send(`
             <html lang="fr">
@@ -10,5 +9,7 @@ export function error403(req, res)
               </body>
             </html>
         `);
+        return true;
     }
+    return false;
 }

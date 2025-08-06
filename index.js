@@ -3,6 +3,7 @@ const app = express()
 const port = 3000
 const cors = require('cors');
 const {error403} = require("./error-403");
+const sql = require("./db.js");
 require('dotenv').config();
 
 app.use(cors({
@@ -10,11 +11,20 @@ app.use(cors({
     method: ['*']
 }));
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 
-    error403(req, res)
+    if (error403(req, res)) return;
+    try {
+        const users = await sql`
+            SELECT username
+            FROM users
+        `;
 
-    res.send('Hello World!');
+        return res.send(users);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Erreur serveur');
+    }
 });
 
 app.listen(port, () => {
