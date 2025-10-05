@@ -49,7 +49,6 @@ app.get('/', async (req, res) => {
 
 app.post('/register', async (req, res) => {
     console.log("DATA:", req.body);
-
     /**
      * Règles de validation :
      * - username : obligatoire, entre 3 et 20 caractères, alphanumérique
@@ -80,12 +79,19 @@ app.post('/register', async (req, res) => {
         FROM users
         WHERE email = ${req.body.email}
     `;
-    console.log("EXISTING USER:", existingUser);
+    const existingUsername = await sql`
+        SELECT username
+        FROM users
+        WHERE username = ${req.body.username}
+    `;
+
+    if (existingUsername.length > 0) {
+        return res.status(400).json({ message:'Le nom d’utilisateur est déjà utilisé.'});
+    }
+
     if (existingUser.length > 0) {
         return res.status(400).json({ message:'L’adresse email est déjà utilisée.'});
     }
-
-
 
     if (req.body.password.length < 8) {
         return res.status(400).json({ message:'Le mot de passe doit contenir au moins 8 caractères.'});
@@ -124,6 +130,7 @@ app.post('/register', async (req, res) => {
         console.error(error);
         return res.status(500).json({ message:'Erreur serveur.'});
     }
+
 
 
 
