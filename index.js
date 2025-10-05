@@ -5,6 +5,8 @@ const port = 3000
 const cors = require('cors');
 const {error403} = require("./error-403");
 const sql = require("./db.js");
+const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 app.use(express.json());
 app.use(cors({
@@ -136,3 +138,59 @@ app.post('/register', async (req, res) => {
 
 })
 
+app.post('/login', async (req, res) => {
+    console.log("DATA:", req.body);
+    /**
+     * Règles de validation :
+     * - password : correct
+     * - email : existant
+     *
+     *  - Aucun espace dans les champs
+     */
+
+
+    if (/\s/.test(req.body.password) || /\s/.test(req.body.email)) {
+        return res.status(400).json({ message:'Les champs ne doivent pas contenir d’espaces ou être vide.'});
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
+        return res.status(400).json({ message:'Le format de l’adresse email est invalide.'});
+    }
+
+    // Vérifier si l’email existe
+    const existingUser = await sql`
+        SELECT *
+        FROM users
+        WHERE email = ${req.body.email}
+    `;
+    console.log(existingUser);
+
+    if (existingUser.length === 0) {
+        return res.status(400).json({ message:"L’adresse email n'existe pas."});
+    }
+
+    const checkPassword = bcrypt.compareSync(req.body.password, existingUser[0].password );
+    console.log(checkPassword);
+    if (!checkPassword) {
+        return res.status(400).json({ message:'Le mot de passe est incorrect.'});
+    }
+    jwt.sign({id: existingUser[0].id,username: existingUser[0].username, email: existingUser[0].email}, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message:'Erreur serveur.'});
+        }
+        return res.status(200).json({ message:'Connexion réussie.', jwt: token});
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+})
