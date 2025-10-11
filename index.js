@@ -174,7 +174,7 @@ app.post('/login', async (req, res) => {
     if (!checkPassword) {
         return res.status(400).json({ message:'Le mot de passe est incorrect.'});
     }
-    jwt.sign({id: existingUser[0].id,username: existingUser[0].username, email: existingUser[0].email}, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign({id: existingUser[0].id,username: existingUser[0].username, email: existingUser[0].email}, process.env.JWT_SECRET, { expiresIn: '365d' }, (err, token) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message:'Erreur serveur.'});
@@ -183,14 +183,20 @@ app.post('/login', async (req, res) => {
     });
 
 
+})
 
+app.post('/verify-token', (req, res) => {
+    const token = req.body.token;
+    console.log("Verifying token:", req.body);
+    if (!token) {
+        return res.status(400).json({ message: 'Token manquant.' });
+    }
 
-
-
-
-
-
-
-
-
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            console.error(err);
+            return res.status(401).json({ message: 'Token invalide ou expiré.' });
+        }
+        return res.status(200).json({ message: 'Token valide.', user: decoded });
+    });
 })
