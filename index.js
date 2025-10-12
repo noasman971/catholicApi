@@ -60,6 +60,10 @@ app.post('/register', async (req, res) => {
      *  - Aucun espace dans les champs
      *  - password == confirmPassword et hashé
      */
+
+    // Minuscule l'email pour éviter les doublons
+    req.body.email = req.body.email.toLowerCase();
+
     if (req.body.username.length < 3 || req.body.username.length > 20) {
         return res.status(400).json({ message:'Le nom d’utilisateur doit contenir entre 3 et 20 caractères.'});
     }
@@ -147,6 +151,7 @@ app.post('/login', async (req, res) => {
      *
      *  - Aucun espace dans les champs
      */
+    req.body.email = req.body.email.toLowerCase();
 
 
     if (/\s/.test(req.body.password) || /\s/.test(req.body.email)) {
@@ -174,7 +179,7 @@ app.post('/login', async (req, res) => {
     if (!checkPassword) {
         return res.status(400).json({ message:'Le mot de passe est incorrect.'});
     }
-    jwt.sign({id: existingUser[0].id,username: existingUser[0].username, email: existingUser[0].email}, process.env.JWT_SECRET, { expiresIn: '365d' }, (err, token) => {
+    jwt.sign({id: existingUser[0].id,username: existingUser[0].username, email: existingUser[0].email, created_at: existingUser[0].created_at}, process.env.JWT_SECRET, { expiresIn: '365d' }, (err, token) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message:'Erreur serveur.'});
