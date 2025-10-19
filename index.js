@@ -6,6 +6,7 @@ const cors = require('cors');
 const {error403} = require("./error-403");
 const sql = require("./db.js");
 const jwt = require('jsonwebtoken');
+const quizRouter = require('./quiz');
 
 require('dotenv').config();
 app.use(express.json());
@@ -25,6 +26,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(quizRouter);
+
+
 /**
  * Vérifier la sécurité encore avec zap mais en local pour éviter les commit inutil
  */
@@ -33,6 +37,8 @@ app.use((req, res, next) => {
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
+
+
 
 app.get('/', async (req, res) => {
 
@@ -190,6 +196,7 @@ app.post('/login', async (req, res) => {
 
 })
 
+
 app.post('/verify-token', (req, res) => {
     const token = req.body.token;
     console.log("Verifying token:", req.body);
@@ -205,3 +212,4 @@ app.post('/verify-token', (req, res) => {
         return res.status(200).json({ message: 'Token valide.', user: decoded });
     });
 })
+
