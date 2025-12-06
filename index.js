@@ -7,6 +7,7 @@ const {error403} = require("./error-403");
 const sql = require("./db.js");
 const jwt = require('jsonwebtoken');
 const quizRouter = require('./quiz');
+const {UserRoles} = require("./Enums");
 
 require('dotenv').config();
 app.use(express.json());
