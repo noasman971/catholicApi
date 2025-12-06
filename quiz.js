@@ -63,6 +63,46 @@ router.get('/', async (req, res) => {
     }
 
 });
+router.get('/doctrine/:tag', async (req, res) => {
+    try {
+        const quiz = await sql`
+            SELECT
+                q.*,
+                u.username        AS user_username,
+                COALESCE(qc.nb_questions, 0) AS nb_questions
+            FROM quiz q
+                     LEFT JOIN "users" u ON u.id = q.created_by
+                     LEFT JOIN (
+                SELECT id_quiz, COUNT(*) AS nb_questions
+                FROM question
+                GROUP BY id_quiz
+            ) qc ON qc.id_quiz = q.id
+            WHERE q.tag = ${req.params.tag};
+        `;
+        return res.status(200).json(quiz);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message:'Erreur serveur.'});
+    }
+});
+
+router.get('/tag/number', async (req, res) => {
+    try {
+        const quiz = await sql`
+            SELECT  quiz.tag, COUNT(*) AS total_quiz
+            FROM QUIZ
+            GROUP BY quiz.tag
+        `;
+        return res.status(200).json(quiz);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message:'Erreur serveur.'});
+    }
+})
+
+
 
 router.get('/details/:id', async (req, res) => {
     console.log("DATA c'est moi : " , req.params);
