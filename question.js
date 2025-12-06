@@ -1,19 +1,31 @@
 const express = require("express");
 const sql = require("./db");
+const {QuestionTypes} = require("./Enums");
 const router = express.Router();
 
 router.post('/', async (req, res) => {
     console.log("DATA : " , req.body);
 
-    //refaire le check
-    if (!req.body || !req.body.id_quiz || !req.body.text || !req.body.options || req.body.choices.length < 2) {
+    if (req.type !== QuestionTypes.SCALE &&  (!req.body.id_quiz || req.body.question.length ===0 || req.body.options.length < 2 ||
+        req.body.answer.length ===0 )) {
         return res.status(403).json({ message: 'Données manquantes.' });
+    }
+    for (const option of req.body.options) {
+        if (option.length === 0) {
+            return res.status(403).json({ message: 'Toutes les options doivent être renseignées.' });
+        }
     }
 
     try {
-        await sql`
+        const question = await sql`
             INSERT INTO question (question, id_quiz, type, options)
-            VALUES (${req.body.question}, ${req.body.id_quiz}, ${req.body.type}, ${req.body.options});
+            VALUES (${req.body.question}, ${req.body.id_quiz}, ${req.body.type}, ${req.body.options})
+            RETURNING id;
+        `;
+        const questionId = question[0].id;
+        await sql`
+            INSERT INTO answers (id_question, answer)
+            VALUES (${questionId}, ${req.body.answer});
         `;
         return  res.status(201).json({ message: 'Nouvelle question créée avec succès.' });
     }

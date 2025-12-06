@@ -64,17 +64,35 @@ router.get('/', async (req, res) => {
 
 });
 
-router.delete(':id', async (req, res) => {
+router.get('/details/:id', async (req, res) => {
+    console.log("DATA c'est moi : " , req.params);
+    try {
+        const quiz = await sql`
+            SELECT question.*
+            FROM question
+            WHERE id_quiz = ${req.params.id};
+        `;
+        return res.status(200).json(quiz);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message:'Erreur serveur. ' + error.message});
+    }
+})
+
+router.delete('/:id', async (req, res) => {
     console.log("DATA : " , req.params);
     try {
         await sql`
             DELETE FROM quiz
             WHERE id = ${req.params.id};
         `;
+        console.log("Quiz supprimé :", req.params.id);
         return res.status(200).json({ message: 'Quiz supprimé avec succès.' });
     }
     catch (error) {
         console.error(error);
+        console.log("Erreur lors de la suppression du quiz :", error);
         return res.status(500).json({ message:'Erreur serveur.'});
     }
 })
