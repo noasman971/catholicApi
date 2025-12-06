@@ -7,6 +7,7 @@ const {error403} = require("./error-403");
 const sql = require("./db.js");
 const jwt = require('jsonwebtoken');
 const quizRouter = require('./quiz');
+const questionRouter = require('./question');
 const {UserRoles} = require("./Enums");
 
 require('dotenv').config();
@@ -27,7 +28,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(quizRouter);
+app.use("/quiz",quizRouter);
+app.use('/question', questionRouter);
 
 
 /**
@@ -212,4 +214,21 @@ app.post('/verify-token', (req, res) => {
         return res.status(200).json({ message: 'Token valide.', user: decoded });
     });
 })
+
+app.get('/me/:id', async (req, res) => {
+
+    console.log("DATA :", req.params);
+    try {
+        const user = await  sql`
+            SELECT *
+            FROM users
+            WHERE id = ${req.params.id}
+        `;
+        return res.send(user[0]);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: 'Erreur serveur : ' + error.message});
+    }
+});
 
