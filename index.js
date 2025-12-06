@@ -54,18 +54,17 @@ app.get('/', async (req, res) => {
     }
 });
 
-
+/**
+ * Règles de validation :
+ * - username : obligatoire, entre 3 et 20 caractères, alphanumérique
+ * - password : obligatoire, au moins 8 caractères, au moins une majuscule, une minuscule, un chiffre
+ * - email : obligatoire, format email valide et non vide ou déjà utilisé
+ *
+ *  - Aucun espace dans les champs
+ *  - password == confirmPassword et hashé
+ */
 app.post('/register', async (req, res) => {
     console.log("DATA:", req.body);
-    /**
-     * Règles de validation :
-     * - username : obligatoire, entre 3 et 20 caractères, alphanumérique
-     * - password : obligatoire, au moins 8 caractères, au moins une majuscule, une minuscule, un chiffre
-     * - email : obligatoire, format email valide et non vide ou déjà utilisé
-     *
-     *  - Aucun espace dans les champs
-     *  - password == confirmPassword et hashé
-     */
 
     // Minuscule l'email pour éviter les doublons
     req.body.email = req.body.email.toLowerCase();
@@ -133,8 +132,8 @@ app.post('/register', async (req, res) => {
     const hashed = await hashPassword(req.body.password);
     try {
         await sql`
-            INSERT INTO users (username, password, email)
-            VALUES (${req.body.username}, ${hashed}, ${req.body.email})
+            INSERT INTO users (username, password, email, role)
+            VALUES (${req.body.username}, ${hashed}, ${req.body.email}, ${UserRoles.USER})
         `;
         return res.status(201).json({ message:'Utilisateur créé avec succès.'});
     }
