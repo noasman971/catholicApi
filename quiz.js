@@ -108,8 +108,9 @@ router.get('/details/:id', async (req, res) => {
     console.log("DATA c'est moi : " , req.params);
     try {
         const quiz = await sql`
-            SELECT question.*
+            SELECT question.*, answers.answer
             FROM question
+            JOIN answers ON answers.id_question = question.id
             WHERE id_quiz = ${req.params.id};
         `;
         return res.status(200).json(quiz);

@@ -3,6 +3,8 @@ const sql = require("./db");
 const {QuestionTypes} = require("./Enums");
 const router = express.Router();
 
+
+//TODO: rajouter une verif que une answer doit correspondre a une option (dans le cas ou on modifie une option on demande de re sélectionner  l'answer)
 router.post('/', async (req, res) => {
     console.log("DATA : " , req.body);
 
